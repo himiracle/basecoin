@@ -1,0 +1,10 @@
+{
+  "name": "basecoin",
+  "version": "1.0.0",
+  "description": "Node.js javascript react",
+  "main": "src/server.js",
+  "repository": "https://github.com/himiracle/basecoin",
+  "author": "blockchain1124 <blockchain1124@gmail.com>",
+  "license": "MIT",
+  "private": false
+}
