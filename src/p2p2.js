@@ -65,11 +65,10 @@ const startP2PServer = server => {
   wsServer.on("connection", ws => {
     initSocketConnection(ws);
   });
-
   wsServer.on("error", () => {
     console.log(error);
   });
-  console.log("MyCoin P2P Server Start Running");
+  console.log("Nomadcoin P2P Server running");
 };
 
 const initSocketConnection = ws => {
@@ -78,13 +77,7 @@ const initSocketConnection = ws => {
   handleSocketError(ws);
   sendMessage(ws, getLatest());
   setTimeout(() => {
-    sendMessageToAll(ws, getAllMempool());
-  }, 1000);
-
-  setInterval(() => {
-    if (sockets.includes(ws)) {
-      sendMessage(ws, "");
-    }
+    sendMessage(ws, getAllMempool());
   }, 1000);
 };
 
@@ -103,7 +96,6 @@ const handleSocketMessages = ws => {
     if (message === null) {
       return;
     }
-    console.log(message);
     switch (message.type) {
       case GET_LATEST:
         sendMessage(ws, responseLatest());
@@ -126,7 +118,6 @@ const handleSocketMessages = ws => {
         if (receivedTxs === null) {
           return;
         }
-        console.log("receivedTxs Length :::::::::::: " + receivedTxs);
         receivedTxs.forEach(tx => {
           try {
             handleIncomingTx(tx);
@@ -140,19 +131,16 @@ const handleSocketMessages = ws => {
   });
 };
 
-// 블록체인 리스판스 관리
 const handleBlockchainResponse = receivedBlocks => {
   if (receivedBlocks.length === 0) {
-    console.log("블록의 길이가 없습니다.");
+    console.log("Received blocks have a length of 0");
     return;
   }
-  // 받아온 블록의 마지막 블록 확인
   const latestBlockReceived = receivedBlocks[receivedBlocks.length - 1];
   if (!isBlockStructureValid(latestBlockReceived)) {
-    console.log("수신된 블록의 구조가 유효하지 않습니다.");
+    console.log("The block structure of the block received is not valid");
     return;
   }
-  // 내블록의 마지막 블록 확인
   const newestBlock = getNewestBlock();
   if (latestBlockReceived.index > newestBlock.index) {
     if (newestBlock.hash === latestBlockReceived.previousHash) {
@@ -178,9 +166,8 @@ const responseLatest = () => blockchainResponse([getNewestBlock()]);
 
 const responseAll = () => blockchainResponse(getBlockchain());
 
-// 새로운 블록이 생겼을때 전체 노드에 알림
 const broadcastNewBlock = () => sendMessageToAll(responseLatest());
-// 새로운 트렌잭션이 생겼을때 전체 노드에 알림
+
 const broadcastMempool = () => sendMessageToAll(returnMempool());
 
 const handleSocketError = ws => {
@@ -197,8 +184,6 @@ const connectToPeers = newPeer => {
   ws.on("open", () => {
     initSocketConnection(ws);
   });
-  ws.on("close", console.log("P2P 커넥션 에러.."));
-  ws.on("error", console.log("P2P 커넥션 에러.."));
 };
 
 module.exports = {
